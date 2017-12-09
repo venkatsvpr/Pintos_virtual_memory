@@ -19,7 +19,6 @@ bool add_stack(void *user_vaddr);
 uint32_t hash_page (struct hash_elem *elem, void *aux UNUSED);
 struct suppl_page_table_info* find_spt(void *user_vaddr);
 bool less_page (struct hash_elem *e1, struct hash_elem *e2,void *aux UNUSED);
-bool file_load(struct suppl_page_table_info *spt_entry);
 
 struct suppl_page_table_info{
 

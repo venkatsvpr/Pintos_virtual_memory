@@ -86,37 +86,7 @@ struct suppl_page_table_info* find_spt(void *user_vaddr){
 		
 	return NULL;
 }
-#if 0
-bool file_load(struct suppl_page_table_info *spt_entry)
-{
-	enum palloc_flags page_flags = PAL_USER;
 
-	if (spt_entry->read_bytes == 0)
-		page_flags = page_flags | PAL_USER;
-
-	uint8_t *kpage = FrameAlloc(page_flags);
-    if (!kpage)
-        return false;
-
-    if(spt_entry->read_bytes > 0){
-    if (file_read_at(spt_entry->load_file, kpage, spt_entry->read_bytes, spt_entry->page_offset) != (int) spt_entry->read_bytes)
-        {
-        	FrameRemove (kpage);
-        	return false; 
-        }
-
-	memset (kpage + spt_entry->read_bytes, 0, spt_entry->zero_bytes);
-   }
-
-    if (!install_page (spt_entry->uv_addr, kpage, spt_entry->is_writable)) 
-    {
-        FrameRemove (kpage);
-        return false; 
-    }
- 	spt_entry->page_isloaded = true;
- 	return true;
-}
-#endif
 bool less_page (struct hash_elem *e1, struct hash_elem *e2,void *aux UNUSED){
   struct suppl_page_table_info *spt_entry1 = hash_entry(e1, struct suppl_page_table_info,hash_table_elem);
   struct suppl_page_table_info *spt_entry2 = hash_entry(e2, struct suppl_page_table_info,hash_table_elem);
