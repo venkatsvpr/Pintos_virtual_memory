@@ -16,6 +16,7 @@
 #ifdef USERPROG
 #include "userprog/process.h"
 #include "userprog/syscall.h"
+#include "vm/frame.h"
 #endif
 
 /* Random value for struct thread's `magic' member.
@@ -620,6 +621,10 @@ init_thread (struct thread *t, const char *name, int priority)
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
+
+    /* frame table initialisations for virtual memory*/
+  list_init(&frame_list);
+//  lock_init(&lock_frame);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and

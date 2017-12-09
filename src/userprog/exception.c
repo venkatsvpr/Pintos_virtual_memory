@@ -4,35 +4,17 @@
 #include "userprog/gdt.h"
 #include "threads/interrupt.h"
 #include "threads/thread.h"
+#include "threads/vaddr.h"
+#include "userprog/syscall.h"
+#include "vm/page.h"
 
-/* Number of page faults processed. */
 static long long page_fault_cnt;
 
 static void kill (struct intr_frame *);
 static void page_fault (struct intr_frame *);
-
-/* Registers handlers for interrupts that can be caused by user
-   programs.
-
-   In a real Unix-like OS, most of these interrupts would be
-   passed along to the user process in the form of signals, as
-   described in [SV-386] 3-24 and 3-25, but we don't implement
-   signals.  Instead, we'll make them simply kill the user
-   process.
-
-   Page faults are an exception.  Here they are treated the same
-   way as other exceptions, but this will need to change to
-   implement virtual memory.
-
-   Refer to [IA32-v3a] section 5.15 "Exception and Interrupt
-   Reference" for a description of each of these exceptions. */
 void
 exception_init (void) 
 {
-  /* These exceptions can be raised explicitly by a user program,
-     e.g. via the INT, INT3, INTO, and BOUND instructions.  Thus,
-     we set DPL==3, meaning that user programs are allowed to
-     invoke them via these instructions. */
   intr_register_int (3, 3, INTR_ON, kill, "#BP Breakpoint Exception");
   intr_register_int (4, 3, INTR_ON, kill, "#OF Overflow Exception");
   intr_register_int (5, 3, INTR_ON, kill,
@@ -147,6 +129,7 @@ page_fault (struct intr_frame *f)
   not_present = (f->error_code & PF_P) == 0;
   write = (f->error_code & PF_W) != 0;
   user = (f->error_code & PF_U) != 0;
+  //printf("into page fault");
 
   /* Handle bad dereferences from system call implementations. */
   if (!user) 
@@ -155,15 +138,33 @@ page_fault (struct intr_frame *f)
       f->eax = 0;
       return;
     }
-
+    bool is_loaded = false;
+    if(not_present && fault_addr > USER_VADDR_BOTTOM && is_user_vaddr(fault_addr)){
+      //struct suppl_page_table_info *spt_entry = find_spt(pg_round_down(fault_addr));
+      /*if(spt_entry){
+        spt_entry->is_page_accessed = true;
+        if(spt_entry->page_isloaded)
+          is_loaded = true;
+        else{
+        is_loaded = file_load(spt_entry);
+        spt_entry->is_page_accessed = false;
+      }
+    }*/
+/* If not found in spt, and if it is a valid stack address intuitively, stack is increased and registered.*/
+  if(fault_addr >= f->esp - 32){
+      is_loaded = add_stack(fault_addr);
+    }
+  }
   /* To implement virtual memory, delete the rest of the function
      body, and replace it with code that brings in the page to
      which fault_addr refers. */
-  printf ("Page fault at %p: %s error %s page in %s context.\n",
-          fault_addr,
-          not_present ? "not present" : "rights violation",
-          write ? "writing" : "reading",
-          user ? "user" : "kernel");
-  kill (f);
+  if(!is_loaded){
+    printf ("Page fault at %p: %s error %s page in %s context.\n",
+            fault_addr,
+            not_present ? "not present" : "rights violation",
+            write ? "writing" : "reading",
+            user ? "user" : "kernel");
+    kill (f);
+  }
 }
 

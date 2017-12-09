@@ -3,6 +3,7 @@
 
 #include <debug.h>
 #include <list.h>
+#include <hash.h>
 #include <stdint.h>
 #include "threads/synch.h"
 #include "threads/fixed-point.h"
@@ -122,6 +123,10 @@ struct thread
     /* Owned by syscall.c. */
     struct list fds;                    /* List of file descriptors. */
     int next_handle;                    /* Next handle value. */
+
+    /* Virtual memory purpose*/
+
+    struct hash suppl_page_table;
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
