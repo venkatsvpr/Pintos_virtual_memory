@@ -1,14 +1,4 @@
 #include "page.h"
-#include "threads/thread.h"
-#include "threads/synch.h"
-#include "threads/palloc.h"
-#include "threads/malloc.h"
-#include "threads/vaddr.h"
-#include "hash.h"
-#include "userprog/pagedir.h"
-#include "userprog/process.h"
-#include "userprog/syscall.h"
-
 bool add_stack(void *user_vaddr)
 {
 	size_t stack_addr = PHYS_BASE - pg_round_down(user_vaddr);
@@ -128,10 +118,13 @@ bool add_page (struct file *file_page, uint32_t zero_bytes, uint32_t read_bytes,
 	}
 	     spt_entry->is_writable = is_writable;
 	     spt_entry->page_offset = ofs;
+		 spt_entry->magic = 1;
 		 spt_entry->read_bytes = read_bytes;
 		 spt_entry->uv_addr = user_page;
+	 	 spt_entry->dirty = 1;
 		 spt_entry->page_isloaded = false;
 		 spt_entry->load_file = file_page;
+		 spt_entry->td = NULL;
 		 spt_entry->is_page_accessed = false;
 		 spt_entry->zero_bytes = zero_bytes;
 		 

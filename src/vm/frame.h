@@ -7,6 +7,10 @@
 #include <list.h>
 #include "threads/synch.h"
 #include "threads/palloc.h"
+#include "threads/malloc.h"
+#include "threads/palloc.h"
+#include "threads/thread.h"
+
 
 
 struct frame_table_entry{

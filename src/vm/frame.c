@@ -1,8 +1,4 @@
-#include "threads/thread.h"
 #include "vm/frame.h"
-#include "threads/malloc.h"
-#include "threads/palloc.h"
-
 void *FrameAlloc (enum palloc_flags page_flags) 
 {
 	if ((page_flags & PAL_USER) == 0)
